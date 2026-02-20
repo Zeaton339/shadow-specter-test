@@ -8,11 +8,14 @@ const TestPage = () => {
   const [answers, setAnswers] = useState<Record<number, number>>({});
   const [isTransitioning, setIsTransitioning] = useState(false);
 
-  const question = questions[currentIndex];
+  // currentQuestion is defined above
   const progress = (Object.keys(answers).length / questions.length) * 100;
 
+  const currentQuestion = questions[currentIndex];
+
   const handleAnswer = useCallback((value: number) => {
-    setAnswers(prev => ({ ...prev, [question.id]: value }));
+    if (!currentQuestion) return;
+    setAnswers(prev => ({ ...prev, [currentQuestion.id]: value }));
     
     if (currentIndex < questions.length - 1) {
       setIsTransitioning(true);
@@ -21,7 +24,7 @@ const TestPage = () => {
         setIsTransitioning(false);
       }, 250);
     }
-  }, [currentIndex, question.id]);
+  }, [currentIndex, currentQuestion]);
 
   const handleSubmit = () => {
     if (Object.keys(answers).length === questions.length) {
@@ -62,7 +65,7 @@ const TestPage = () => {
       </div>
 
       {/* Question */}
-      <div className="flex-1 flex items-center justify-center px-4 pt-20 pb-8">
+      {currentQuestion && <div className="flex-1 flex items-center justify-center px-4 pt-20 pb-8">
         <div 
           className={`w-full max-w-lg transition-all duration-250 ${isTransitioning ? 'opacity-0 translate-y-4' : 'opacity-100 translate-y-0'}`}
         >
@@ -75,13 +78,13 @@ const TestPage = () => {
 
           {/* Question text */}
           <p className="text-lg sm:text-xl text-center text-foreground leading-relaxed mb-12 font-medium">
-            {question.text}
+            {currentQuestion.text}
           </p>
 
           {/* Answer options */}
           <div className="space-y-3">
             {answerOptions.map((option) => {
-              const isSelected = answers[question.id] === option.value;
+              const isSelected = answers[currentQuestion.id] === option.value;
               return (
                 <button
                   key={option.value}
@@ -111,7 +114,7 @@ const TestPage = () => {
             </button>
           )}
         </div>
-      </div>
+      </div>}
     </div>
   );
 };
